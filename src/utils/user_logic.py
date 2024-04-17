@@ -11,9 +11,8 @@ class User_Logic:
         results = UserModel.dictionaries_to_users(result)
         return results
 
-    def insert_user_to_table(self, firstName, lastName, email, password, roleId):
-        if roleId == 1:
-            raise ValueError("User can't be an admin, please insert a user. If you feel like you need admin privileges for the database please contact your IT manager.")
+    def insert_user_to_table(self, firstName, lastName, email, password):
+        roleId = 2 # insures that new user is inputted as a user role
         sql = "insert into first_project_db.users(firstName, lastName, email, password, roleId) values(%s, %s, %s, %s, %s)"
         parameters = (firstName, lastName, email, password, roleId)
         added_user = self.dal.insert(sql, params=parameters)
@@ -21,8 +20,8 @@ class User_Logic:
 
     # check if this is an action that needs sql injection protection
     # is there a connection between the crud functions and the insertion of parameters
-    def return_user_by_email_and_password(self, email, password):
-        sql = f"select * from first_project_db.users where email = '{email}' and password = '{password}'"
+    def return_user_by_email_and_password(self, check_email, check_password):
+        sql = f"select * from first_project_db.users where email = '{check_email}' and password = '{check_password}'"
         user_tuple = self.dal.get_scalar(sql)
         if user_tuple is None:
             return "User is not in the database"
@@ -32,7 +31,9 @@ class User_Logic:
     def check_if_email_in_database(self, check_email):
         sql = f"select email from first_project_db.users where email like '%{check_email}%'"
         email = self.dal.get_scalar(sql)
-        return email
+        if email is None:
+            return False
+        return True
 
 
     # think about a way to print the list of models in a function
@@ -45,14 +46,10 @@ class User_Logic:
     #     print(print_users) 
 
 logic_tests = User_Logic()
-# logic_tests.insert_user_to_table("321", "452354", "3546564@gmail.com", "13552634", 2)
+logic_tests.insert_user_to_table("Bill", "Baxter", "Shamosajdbai@aol.com", "asddsa2634")
+
 user = logic_tests.return_user_by_email_and_password("jonathan.zamanski@gmail.com", 12345)
 print(user)
 
-
-
-
-
-
-# user = logic_tests.check_if_email_in_database("jonathan.zamanski@gmail.com")
-# print(user)
+user = logic_tests.check_if_email_in_database("jonathan.zamanski@gmail.com")
+print(user)
